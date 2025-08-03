@@ -1,7 +1,7 @@
 [project]
 name = "liascript-img-makro-gen"
 version = "0.1.0"
-description = ""
+description = "A tool to generate image macros for Liascript."
 authors = [
     {name = "Volker Goehler",email = "volker.goehler@informatik.tu-freiberg.de"}
 ]
@@ -13,6 +13,20 @@ dependencies = [
 [tool.poetry]
 packages = [{include = "liascript_img_makro_gen", from = "src"}]
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "slow: mark test as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.poetry.scripts]
+generate = "liascript_img_makro_gen.main:app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
