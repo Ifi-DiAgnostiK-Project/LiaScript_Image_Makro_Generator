@@ -113,7 +113,7 @@ def replace_umlaut(match):
             char = match.group(0)
             return UMLAUT_MAP.get(char, char)
 
-if __name__ == "__main__":
+def generate():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     text = process_folders(current_dir)
     makros_path = os.path.join(current_dir, "makros.md")
