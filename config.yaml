@@ -1,0 +1,54 @@
+ignore_dirs:
+  - Collections
+
+makros_setup: |
+  author: "Volker Göhler, Niklas Werner"
+  email: "volker.goehler@informatik.tu-freiberg"
+  version: "0.0.1"
+  repository: "https://github.com/Ifi-DiAgnostiK-Project/XXXXX"
+  edit: true
+  title: "DiAgnostiK Basic Template"
+  tags: "Wissensspeicher"
+  diagnostik_image_pics: "<img src='@0/@1' alt='@1' style='height: @2rem'>"
+
+repository: "https://github.com/Ifi-DiAgnostiK-Project/XXXXX"
+makro_file: "/makro.md"
+image_folder: "/img"
+
+# use raw_location to place the location to the file
+how_to_use: |
+  # Link zu LiaScript
+  [![LiaScript Course](https://raw.githubusercontent.com/LiaScript/LiaScript/master/badges/course.svg)](https://liascript.github.io/course/?{raw_location})
+  
+  > Diese Datei ist automatisch generiert und enthält Makros für die DiAgnostiK-Bilder der Gewerke.
+  
+  # Anleitung
+  > Der Befehl zum einbinden eines Bildes lautet `@<Bereich>.<Name>(Größe)`.
+  > Hängt man statt der Größe `.src` an, so wird der Link zum Bild angezeigt. `@<Bereich>.<Name>.src`
+  - Der Bereich ist der Ordnername, in dem sich das Bild befindet.
+  - Der Name ist der Dateiname ohne Endung.
+  - Die Größe ist in Zeilen angegeben, die das Bild hoch sein soll.
+  **Die Anzeige benötigt LiaScript!**
+  
+   ## Beispiel
+  
+  `@Maler_Taetigkeiten.Koje_Grundflaeche_farbig(10)`
+
+  @Maler_Taetigkeiten.Koje_Grundflaeche_farbig(10)
+
+  @Maler_Taetigkeiten.Koje_Grundflaeche_farbig.src
+
+  `@Maler_Taetigkeiten.Koje_Grundflaeche_farbig.src`
+
+  ## Bereiche und Befehle
+
+  Im Nachfolgenden sind alle Bilder aller Bereiche und passende Befehle aufgelistet, die in dieser Sammlung enthalten sind. 
+
+image_extensions:
+  - ".jpg"
+  - ".jpeg"
+  - ".png"
+  - ".gif"
+  - ".bmp"
+  - ".tiff"
+  - ".webp"
