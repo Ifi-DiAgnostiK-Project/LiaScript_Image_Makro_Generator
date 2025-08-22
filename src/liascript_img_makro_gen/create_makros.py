@@ -1,6 +1,7 @@
-import re
 import os
 from pathlib import Path
+
+from src.liascript_img_makro_gen.tools import get_sanitized_name, is_image_file
 
 ignore_dirs = ['Collections']
 
@@ -54,9 +55,6 @@ Alle Bilder sowie ihre Bereiche und die Befehle um sie zu laden sind in den Tabe
 Im Nachfolgenden sind alle Bilder aller Bereiche und passende Befehle aufgelistet, die in dieser Sammlung enthalten sind.
 '''
 
-UMLAUT_MAP = {
-    'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'Ä': 'Ae', 'Ö': 'Oe', 'Ü': 'Ue', 'ß': 'ss'
-}
 
 def process_folders(base_path):
     img_path = os.path.join(base_path, 'img')
@@ -74,11 +72,6 @@ def process_folders(base_path):
 
     return "\n".join(makros) + "\n".join(showcase)
 
-def is_image_file(filename):
-    """Check if the file is an image based on its extension."""
-    image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
-    return filename.lower().endswith(image_extensions)
-
 def clean_filename(filename):
     itemname = Path(filename).stem
     return itemname.replace('_', ' ').replace('-', ' ')
@@ -89,9 +82,9 @@ def process_file(parent_folder, makros, showcase):
         full_path = os.path.join(parent_folder, item)
         if os.path.isdir(full_path):
             process_file(full_path, makros, showcase)
-        if os.path.isfile(full_path) and is_image_file(item):
+        if os.path.isfile(full_path) and is_image_file(item, image_extensions=?):
             # Only process image files
-            filename = get_name(item)
+            filename = get_sanitized_name(item)
             entries = Path(parent_folder).parts[-2:]
             entry = "_".join(entries)
             parent_folders = Path(*entries).as_posix()
@@ -102,18 +95,8 @@ def process_file(parent_folder, makros, showcase):
             itemname = clean_filename(item)
             showcase.append(f"|@{entry}.{filename}(10)|_{itemname}_|`@{entry}.{filename}(10)`|")
 
-def get_name(filepath):
-    """this returns the name of the image file without the extension."""
-    filename = os.path.splitext(os.path.basename(filepath))[0]
-    pattern = '[' + ''.join(map(re.escape, UMLAUT_MAP.keys())) + ']'
-    filename = re.sub(pattern, replace_umlaut, filename)
-    return re.sub(r'[^a-zA-Z0-9_]', '_', filename)
 
-def replace_umlaut(match):
-            char = match.group(0)
-            return UMLAUT_MAP.get(char, char)
-
-def generate():
+if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
     text = process_folders(current_dir)
     makros_path = os.path.join(current_dir, "makros.md")
