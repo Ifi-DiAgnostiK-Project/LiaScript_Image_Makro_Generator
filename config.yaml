@@ -11,7 +11,7 @@ makros_setup: |
   tags: "Wissensspeicher"
 
 repository: "https://github.com/Ifi-DiAgnostiK-Project/XXXXX"
-makro_file: "/makro.md"
+makro_file: "/makros.md"
 image_folder: "/img"
 
 # use raw_location to place the location to the file
