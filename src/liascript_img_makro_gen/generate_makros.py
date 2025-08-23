@@ -20,7 +20,9 @@ class LiaScriptMakroGenerator:
     def generate_makros(self):
         # output pre fill
         self.makro_file.add_to_header(self.makros_setup)
-        self.makro_file.add_to_body(self.how_to_use.format(location=ConfigLoader.generate_raw_location(self.repository, self.makro_file)))
+        self.makro_file.add_to_header("diagnostik_image: \"<img src='@0/@1' alt='@1' style='height: @2rem'>\"")
+
+        self.makro_file.add_to_body(self.how_to_use.format(raw_location=ConfigLoader.generate_raw_location(self.repository, self.makro_filename)))
 
         # parse all image folders
         self.process_folders()

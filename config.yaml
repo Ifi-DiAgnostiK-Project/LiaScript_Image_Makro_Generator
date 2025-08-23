@@ -9,7 +9,6 @@ makros_setup: |
   edit: true
   title: "DiAgnostiK Basic Template"
   tags: "Wissensspeicher"
-  diagnostik_image_pics: "<img src='@0/@1' alt='@1' style='height: @2rem'>"
 
 repository: "https://github.com/Ifi-DiAgnostiK-Project/XXXXX"
 makro_file: "/makro.md"

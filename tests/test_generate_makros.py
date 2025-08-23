@@ -95,7 +95,7 @@ def test_generate_makros(monkeypatch):
         "makros_setup": "<!-- setup -->",
         "makro_file": "/not/used.md",
         "image_folder": "img",
-        "how_to_use": "use images at {location}",
+        "how_to_use": "use images at {raw_location}",
         "repository": "owner/repo",
         "image_extensions": [".jpg", ".png"],
     }
