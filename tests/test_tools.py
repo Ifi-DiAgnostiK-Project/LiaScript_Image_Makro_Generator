@@ -1,6 +1,7 @@
 import pytest
 from src.liascript_img_makro_gen.tools import get_sanitized_name
 from src.liascript_img_makro_gen.tools import is_image_file
+from liascript_img_makro_gen.tools import clean_filename
 
 @pytest.mark.parametrize("filepath, expected", [
     # Simple filename with umlauts only:
@@ -42,3 +43,20 @@ IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp")
 def test_is_image_file(filename, expected):
     result = is_image_file(filename, IMAGE_EXTENSIONS)
     assert result == expected, f"Expected {expected} for filename '{filename}', got {result}"
+
+def test_is_image_file_with_list():
+    assert is_image_file('three.png', ['.png']), "is_image_file should return True for a valid extension"
+
+@pytest.mark.parametrize(
+    "inp, expected",
+    [
+        ("hello world.png", "hello world"),
+        ("file-name.jpeg", "file name"),
+        ("multiple---dashes.ext", "multiple   dashes"),
+        ("keep_this-name.png", "keep this name"),
+        ("ümlaut.jpg", "ümlaut"),
+        ("", ""),
+    ],
+)
+def test_clean_filename_various_cases(inp, expected):
+    assert clean_filename(inp) == expected

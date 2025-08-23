@@ -1,5 +1,7 @@
 import os
 import re
+from pathlib import Path
+from typing import Tuple, Any
 
 
 def replace_umlaut(match):
@@ -33,7 +35,8 @@ def get_sanitized_name(filepath):
 
 def is_image_file(filename, image_extensions):
     """Check if the file is an image based on its extension."""
-    return filename.lower().endswith(image_extensions)
+    extension = Path(filename).suffix.lower()
+    return extension in image_extensions
 
 
 class DocumentBuilder:
@@ -49,3 +52,13 @@ class DocumentBuilder:
 
     def build(self) -> str:
         return "\n".join(self._header) + "\n-->\n\n" + "\n".join(self._body)
+
+
+def clean_filename(filename):
+    """
+    Return the filename but underscores and dashes are replaced with spaces.
+    :param filename:
+    :return:
+    """
+    itemname = Path(filename).stem
+    return itemname.replace('_', ' ').replace('-', ' ')
