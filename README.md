@@ -13,7 +13,7 @@ poetry install
 then call the script via
 
 ```bash
-poetry run python -m liascript_img_makro_generator.main --config config.yaml
+poetry run python -m liascript_img_makro_gen.main --config config.yaml
 ```
 
 ## Configuration
