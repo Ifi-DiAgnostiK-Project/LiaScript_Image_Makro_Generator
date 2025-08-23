@@ -51,10 +51,14 @@ class LiaScriptMakroGenerator:
         at_top = True if operation_folder == self.image_folder else False
 
         # we go through all entries in path
-        for category in os.listdir(target):
+        folder_elements = list(target.iterdir())
+        # sort them
+        folder_elements.sort(key=lambda p: (p.is_dir(), p.name.lower()))
+        for category in folder_elements:
+            category = category.name
             full_path = target / category
             # each of these main categories needs to be parsed for subcats and image files
-            if os.path.isdir(full_path) and category not in self.ignore_dirs:
+            if full_path.is_dir() and category not in self.ignore_dirs:
                 # directory
                 if not at_top:
                     # if we are not at top then add subcategory
@@ -63,9 +67,12 @@ class LiaScriptMakroGenerator:
                 self.makro_file.add_to_body(f"\n### {category}\n")
                 self.makro_file.add_to_body("|Bild|Name|Befehl|\n|---|---|---|")
                 self.process_folder(full_path)
-            elif os.path.isfile(full_path) and is_image_file(category, image_extensions=self.image_extensions):
+            elif full_path.is_file() and is_image_file(category, image_extensions=self.image_extensions):
                 # image
-                self.process_file(full_path)
+                parts = full_path.parts
+                tail = parts[parts.index(self.image_folder)+1:]
+
+                self.process_file(Path("/".join(tail)))
 
     def process_file(self, filepath: Path):
         """

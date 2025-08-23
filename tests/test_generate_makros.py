@@ -1,4 +1,5 @@
 from pathlib import Path
+from unicodedata import category
 
 import pytest
 from liascript_img_makro_gen.generate_makros import LiaScriptMakroGenerator
@@ -232,3 +233,58 @@ def test_recursive_image_processing_no_ignores(image_tree, monkeypatch):
     assert body.count("|Bild|Name|Befehl|") == 5, "There should be three table heads in the body"
 
     assert gen.process_file_called == 6, "process_file should have been called for each image file"
+
+def test_recursive_image_processing_with_images(image_tree, monkeypatch):
+    monkeypatch.chdir(image_tree.parent)
+
+    # Minimal config required by the constructor
+    config = {
+        "raw_image_folder": "https://raw.githubusercontent.com/user/repo/refs/heads/main/img",
+        "ignore_dirs": ["ignore_folder"],
+        "makros_setup": "",
+        "makro_file": "makro.md",
+        "image_folder": "img",  # Path inside which files are considered relative
+        "how_to_use": "{raw_location}",
+        "repository": "https://github.com/user/repo",
+        "image_extensions": [".png", ".jpg", ".jpeg"],
+    }
+
+    gen = LiaScriptMakroGenerator(config)
+
+    gen.process_folders()
+
+    # join the body entries for easier assertions
+    body = "\n".join(gen.makro_file._body)
+
+    assert "@category1.one" in body, "image one is not correctly set"
+    assert "@category1.two" in body, "image two is not correctly set"
+    assert "@category2.three" in body, "image three is not correctly set"
+    assert "@category2.four" in body, "image four is not correctly set"
+    assert "@category1_subcategory.five" in body, "image five is not correctly set"
+    assert "@category1_subcategory.six" in body, "image six is not correctly set"
+
+def test_recursive_images_for_order(image_tree, monkeypatch):
+    monkeypatch.chdir(image_tree.parent)
+
+    # Minimal config required by the constructor
+    config = {
+        "raw_image_folder": "https://raw.githubusercontent.com/user/repo/refs/heads/main/img",
+        "ignore_dirs": ["ignore_folder"],
+        "makros_setup": "",
+        "makro_file": "makro.md",
+        "image_folder": "img",  # Path inside which files are considered relative
+        "how_to_use": "{raw_location}",
+        "repository": "https://github.com/user/repo",
+        "image_extensions": [".png", ".jpg", ".jpeg"],
+    }
+
+    output_part = "|@category1.one(10)|_one_|`@category1.one(10)`|\n|@category1.two(10)|_two_|`@category1.two(10)`|"
+
+    gen = LiaScriptMakroGenerator(config)
+
+    gen.process_folders()
+
+    # join the body entries for easier assertions
+    body = "\n".join(gen.makro_file._body)
+
+    assert output_part in body, "image order is not correct"
