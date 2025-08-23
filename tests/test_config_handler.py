@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from liascript_img_makro_gen.confighandler import ConfigLoader
 import yaml
@@ -9,14 +11,15 @@ ensure_validity = ConfigLoader._ConfigLoader__ensure_validity
 process_makros_setup = ConfigLoader._ConfigLoader__process_makros_setup
 
 
-def test_img_folder_leading_slash_added():
+def test_img_folder_leading_slash_removed():
     config_data = {
         "repository": "https://github.com/user/reponame",
-        "image_folder": "img",
-        "makro_file": "/makro.md"
+        "image_folder": "/img",
+        "makro_file": "/makro.md",
+        "image_extensions": []
     }
     updated = ensure_validity(config_data)
-    assert updated["image_folder"].startswith("/"), "image_folder should start with a leading slash"
+    assert Path(updated["image_folder"]).root == '', "image_folder should not start with a leading slash"
 
 def test_img_folder_moved_to_full_variable(tmp_path):
     # Create a temporary config.yaml file with only the mandatory repository key.
@@ -31,26 +34,27 @@ def test_img_folder_moved_to_full_variable(tmp_path):
     loader = ConfigLoader(config_path=str(config_file))
     config_data = loader.load_config()
     assert "image_folder" in config_data, "image_folder should be present in the config data"
-    assert config_data["image_folder"] == "/img", "image_folder should be set to '/img'"
+    assert config_data["image_folder"] == "img", "image_folder should be set to 'img'"
     assert config_data["raw_image_folder"] == "https://raw.githubusercontent.com/user/repo/refs/heads/main/img", "raw_image_folder should be set to the raw URL"
 
 def test_missing_repository_raises_error():
     config_data = {
         "makros_setup": "some setup",
-        "makro_file": "/makro.md"
+        "makro_file": "makro.md"
     }
     with pytest.raises(ValueError, match="The 'repository' key must be provided"):
         ensure_validity(config_data)
 
-def test_makro_file_leading_slash_added():
+def test_makro_file_leading_slash_striped():
     config_data = {
         "repository": "https://github.com/user/reponame",
         "makros_setup": "some setup",
-        "makro_file": "makro.md",
-        "image_folder": "/img"
+        "makro_file": "/makro.md",
+        "image_folder": "/img",
+        "image_extensions": []
     }
     updated = ensure_validity(config_data)
-    assert updated["makro_file"].startswith("/"), "makro_file should start with a leading slash"
+    assert not Path(updated["makro_file"]).root, "makro_file should not start with a leading slash"
 
 def test_makros_setup_adds_html_comment_and_repository_line_when_missing():
     # Start with some empty lines, then a normal text not starting with the comment and no repository line.
@@ -86,7 +90,7 @@ edit: true
 def test_generate_raw_location():
     # Test the conversion of a GitHub repository URL to a raw URL.
     repository_url = "https://github.com/user/reponame/"
-    makro_file = "/makros.md"
+    makro_file = "makros.md"
     expected_raw = "https://raw.githubusercontent.com/user/reponame/refs/heads/main/makros.md"
     raw_url = ConfigLoader.generate_raw_location(repository_url, makro_file)
     assert raw_url == expected_raw, f"Expected {expected_raw}, got {raw_url}"
@@ -108,8 +112,8 @@ def test_defaults_are_set(tmp_path):
     expected_defaults = {
         "ignore_dirs": [],
         "makros_setup": '<!--\nrepository: "https://github.com/user/repo"',
-        "makro_file": "/makros.md",
-        "image_folder": "/img",
+        "makro_file": "makros.md",
+        "image_folder": "img",
         "how_to_use": "",
         "image_extensions": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"]
     }
@@ -129,3 +133,25 @@ def test_defaults_are_set(tmp_path):
     # Check that one of the lines is the repository line.
     repo_line = 'repository: "https://github.com/user/repo"'
     assert any(line.strip() == repo_line for line in makros_lines), "Repository line not correctly added in makros_setup."
+
+def test_image_extensions_lowercased():
+    config_data = {
+        "repository": "https://github.com/user/reponame",
+        "image_folder": "/img",
+        "makros_setup": "<!--\nrepository: \"https://github.com/user/reponame\"",
+        "makro_file": "/makro.md",
+        "image_extensions": [".JPG", ".PNG"]
+    }
+    updated = ensure_validity(config_data)
+    assert updated["image_extensions"] == [".jpg", ".png"], "Image extensions should be lowercased."
+
+def test_image_extensions_start_with_dot():
+    config_data = {
+        "repository": "https://github.com/user/reponame",
+        "image_folder": "/img",
+        "makros_setup": "<!--\nrepository: \"https://github.com/user/reponame\"",
+        "makro_file": "/makro.md",
+        "image_extensions": ["jpg", ".png", "jpeg"]
+    }
+    updated = ensure_validity(config_data)
+    assert updated["image_extensions"] == [".jpg", ".png", ".jpeg"], "Image extensions should start with a dot."

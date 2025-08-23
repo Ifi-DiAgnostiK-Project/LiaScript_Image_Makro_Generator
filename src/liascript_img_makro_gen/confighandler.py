@@ -1,5 +1,7 @@
 import logging
 import sys
+from pathlib import Path
+
 import yaml
 
 class ConfigLoader:
@@ -31,8 +33,8 @@ class ConfigLoader:
         defaults = {
             "ignore_dirs": [],
             "makros_setup": "",
-            "makro_file": "/makros.md",
-            "image_folder": "/img",
+            "makro_file": "makros.md",
+            "image_folder": "img",
             "how_to_use": "",
             "image_extensions": [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"]
         }
@@ -52,11 +54,15 @@ class ConfigLoader:
         if not config_data.get("repository"):
             raise ValueError("The 'repository' key must be provided in the configuration.")
 
-        # Ensure that 'makro_file' and 'image_folder' starts with a leading slash.
+        # Strip leading slashes from  'makro_file' and 'image_folder'
         keys = ["makro_file", "image_folder"]
         for key in keys:
-            if not config_data[key].startswith("/"):
-                config_data[key] = "/" + config_data[key]
+            path_key = Path(config_data[key])
+            if path_key.root != '':
+                config_data[key] = path_key.relative_to("/")
+
+        # ensure that all image_extensions are lowercase
+        config_data["image_extensions"] = ["." + e.lower() if not e.startswith('.') else e.lower() for e in config_data["image_extensions"]]
 
         return config_data
 
@@ -112,5 +118,5 @@ class ConfigLoader:
 
         # Construct the raw URL.
         # Here we assume 'refs/heads/main' is the default branch.
-        raw_url = f"https://raw.githubusercontent.com/{repo_path}/refs/heads/main{makro_file}"
+        raw_url = f"https://raw.githubusercontent.com/{repo_path}/refs/heads/main/{makro_file}"
         return raw_url
