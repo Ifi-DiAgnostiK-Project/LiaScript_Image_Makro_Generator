@@ -288,3 +288,91 @@ def test_recursive_images_for_order(image_tree, monkeypatch):
     body = "\n".join(gen.makro_file._body)
 
     assert output_part in body, "image order is not correct"
+
+@pytest.fixture
+def minimal_config():
+    # adjust to match constructor requirements if needed
+    return {
+        "raw_image_folder": "raw",
+        "ignore_dirs": [],
+        "makros_setup": "",
+        "makro_file": "makro.md",
+        "image_folder": "img",
+        "how_to_use": "",
+        "repository": "",
+        "image_extensions": (".png", ".jpg", ".jpeg"),
+    }
+
+
+def write_license_file(root: Path, name: str, content: str) -> Path:
+    p = root / name
+    p.write_text(content, encoding="utf-8")
+    return p
+
+
+def test_process_licence_file_inserts_header_and_body_between_heading_and_table(tmp_path, minimal_config):
+    """
+    Given a repo location that contains a licence file, process_licence_file should:
+    - add a licence-related macro/text to makro_file._header, and
+    - insert the licence text into makro_file._body between a Heading and the Start-of-Table marker.
+    """
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    license_text = "Copyright (c) Example Org\nAll rights reserved."
+    write_license_file(repo, "LICENSE", license_text)
+
+    gen = LiaScriptMakroGenerator(minimal_config)
+
+    heading = "# Images"
+    table_start_marker = "<!-- START OF TABLE -->"
+    gen.makro_file._body = [heading]
+
+
+    # Call the method under test
+    gen.process_licence_file(repo)
+
+    gen.makro_file.add_to_body(table_start_marker)
+
+    # Header should contain some reference to the license (first line should appear or similar)
+    header_text = "\n".join(gen.makro_file._header)
+    assert header_text, "Expected makro_file._header to be non-empty after processing licence file"
+    assert license_text.splitlines()[0] in header_text or "LICENSE" in header_text or "License" in header_text
+
+    # Body should still contain the heading and the table start marker
+    assert heading in gen.makro_file._body
+    assert table_start_marker in gen.makro_file._body
+
+    # License text (or its first line) must appear somewhere between heading and table_start_marker
+    idx_heading = gen.makro_file._body.index(heading)
+    idx_table = gen.makro_file._body.index(table_start_marker)
+
+    assert idx_heading < idx_table, "Heading should be before the table start marker in the body"
+
+    # Check that at least one body element between heading and table marker contains the license first line
+    between = gen.makro_file._body[idx_heading + 1 : idx_table]
+    assert between, "Expected content to be inserted between heading and table marker"
+    assert any(license_text.splitlines()[0] in (str(item)) for item in between), (
+        "Expected license text (or its first line) to be inserted between heading and table start marker"
+    )
+
+
+def test_process_licence_file_no_license_file_leaves_header_and_body_unchanged(tmp_path, minimal_config):
+    """
+    If there is no licence file in the provided location, process_licence_file should not raise
+    and should not modify header/body (i.e. behave as a no-op).
+    """
+    repo = tmp_path / "repo_empty"
+    repo.mkdir()
+
+    gen = LiaScriptMakroGenerator(minimal_config)
+
+    # snapshot initial header/body
+    initial_header = list(gen.makro_file._header)
+    initial_body = list(gen.makro_file._body)
+
+    # Should not raise
+    gen.process_licence_file(repo)
+
+    assert gen.makro_file._header == initial_header, "Header changed even though no licence file was present"
+    assert gen.makro_file._body == initial_body, "Body changed even though no licence file was present"
