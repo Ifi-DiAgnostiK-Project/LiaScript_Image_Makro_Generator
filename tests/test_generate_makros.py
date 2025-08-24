@@ -310,11 +310,11 @@ def write_license_file(root: Path, name: str, content: str) -> Path:
     return p
 
 
-def test_process_licence_file_inserts_header_and_body_between_heading_and_table(tmp_path, minimal_config):
+def test_process_license_file_inserts_header_and_body_between_heading_and_table(tmp_path, minimal_config):
     """
-    Given a repo location that contains a licence file, process_licence_file should:
-    - add a licence-related macro/text to makro_file._header, and
-    - insert the licence text into makro_file._body between a Heading and the Start-of-Table marker.
+    Given a repo location that contains a license file, process_licence_file should:
+    - add a license-related macro/text to makro_file._header, and
+    - insert the license text into makro_file._body between a Heading and the Start-of-Table marker.
     """
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -357,9 +357,9 @@ def test_process_licence_file_inserts_header_and_body_between_heading_and_table(
     )
 
 
-def test_process_licence_file_no_license_file_leaves_header_and_body_unchanged(tmp_path, minimal_config):
+def test_process_license_file_no_license_file_leaves_header_and_body_unchanged(tmp_path, minimal_config):
     """
-    If there is no licence file in the provided location, process_licence_file should not raise
+    If there is no license file in the provided location, process_licence_file should not raise
     and should not modify header/body (i.e. behave as a no-op).
     """
     repo = tmp_path / "repo_empty"

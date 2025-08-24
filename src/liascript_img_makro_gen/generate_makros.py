@@ -108,8 +108,8 @@ class LiaScriptMakroGenerator:
             # put a licence text macro in head
             license_text = license_file.read_text(encoding="utf-8")
             direct_category = location.name
-            self.makro_file.add_to_header(f'@{direct_category}.licence: Bildquellen: {license_text}')
+            self.makro_file.add_to_header(f'@{direct_category}.license: Bildquellen: {license_text}')
             # and put Licence text between Heading and Start of Table
             self.makro_file.add_to_body(f"\n{license_text}\n")
-            self.makro_file.add_to_body(f"mit `@{direct_category}.licence` kann der Text ausgegeben werden.")
-            self.makro_file.add_to_body(f"\n> @{direct_category}.licence")
+            self.makro_file.add_to_body(f"mit `@{direct_category}.license` kann der Text ausgegeben werden.")
+            self.makro_file.add_to_body(f"\n> @{direct_category}.license")
