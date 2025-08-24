@@ -66,8 +66,7 @@ class LiaScriptMakroGenerator:
                 self.makro_file.add_to_body(f"\n### {category}\n")
                 # parse licence file
                 self.process_licence_file(full_path)
-                self.makro_file.add_to_body("<!-- START OF TABLE -->")
-                self.makro_file.add_to_body("|Bild|Name|Befehl|\n|---|---|---|")
+                self.makro_file.add_to_body("\n|Bild|Name|Befehl|\n|---|---|---|")
                 self.process_folder(full_path)
             elif full_path.is_file() and is_image_file(category, image_extensions=self.image_extensions):
                 # image
@@ -113,3 +112,4 @@ class LiaScriptMakroGenerator:
             # and put Licence text between Heading and Start of Table
             self.makro_file.add_to_body(f"\n{license_text}\n")
             self.makro_file.add_to_body(f"mit `@{direct_category}.licence` kann der Text ausgegeben werden.")
+            self.makro_file.add_to_body(f"\n> @{direct_category}.licence")
