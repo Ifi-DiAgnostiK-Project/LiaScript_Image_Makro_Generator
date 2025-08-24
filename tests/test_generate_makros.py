@@ -330,7 +330,7 @@ def test_process_license_file_inserts_header_and_body_between_heading_and_table(
 
 
     # Call the method under test
-    gen.process_licence_file(repo)
+    gen.process_license_file(repo, "repo")
 
     gen.makro_file.add_to_body(table_start_marker)
 
@@ -372,7 +372,36 @@ def test_process_license_file_no_license_file_leaves_header_and_body_unchanged(t
     initial_body = list(gen.makro_file._body)
 
     # Should not raise
-    gen.process_licence_file(repo)
+    gen.process_license_file(repo, "repo_empty")
 
     assert gen.makro_file._header == initial_header, "Header changed even though no licence file was present"
     assert gen.makro_file._body == initial_body, "Body changed even though no licence file was present"
+
+def test_process_license_file_two_levels_deep_macro_name(tmp_path, minimal_config):
+    """
+    If a LICENSE file is located two levels below the image folder (e.g. img/painter/tools/LICENSE),
+    the generated macro name in the header should be composed from the folder names after the image
+    folder joined with an underscore and suffixed with '.license', prefixed by '@'.
+    Example: img->painter->tools->LICENSE  ->  @painter_tools.license
+    """
+    repo = tmp_path / "repo"
+    tools_dir = repo / "img" / "painter" / "tools"
+    tools_dir.mkdir(parents=True)
+
+    license_text = "Copyright (c) Example Org\nAll rights reserved."
+    # write_license_file is defined elsewhere in this test module
+    write_license_file(tools_dir, "LICENSE", license_text)
+
+    gen = LiaScriptMakroGenerator(minimal_config)
+
+    # Ensure deterministic starting state
+    gen.makro_file._header = []
+    gen.makro_file._body = []
+
+    # Execute
+    gen.process_license_file(tools_dir, "painter_tools")
+
+    header_text = "\n".join(gen.makro_file._header)
+    assert "@painter_tools.license" in header_text, (
+        "Expected macro '@painter_tools.license' to be present in header for a LICENSE file at img/painter/tools/LICENSE"
+    )

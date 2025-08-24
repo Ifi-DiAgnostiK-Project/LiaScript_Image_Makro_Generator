@@ -65,7 +65,7 @@ class LiaScriptMakroGenerator:
                 # new folder, start with title and table
                 self.makro_file.add_to_body(f"\n### {category}\n")
                 # parse licence file
-                self.process_licence_file(full_path)
+                self.process_license_file(full_path, category)
                 self.makro_file.add_to_body("\n|Bild|Name|Befehl|\n|---|---|---|")
                 self.process_folder(full_path)
             elif full_path.is_file() and is_image_file(category, image_extensions=self.image_extensions):
@@ -101,15 +101,14 @@ class LiaScriptMakroGenerator:
         item_name = clean_filename(item)
         self.makro_file.add_to_body(f"|@{categories}.{filename}(10)|_{item_name}_|`@{categories}.{filename}(10)`|")
 
-    def process_licence_file(self, location: Path):
-        # check if there is a Licence File
+    def process_license_file(self, location: Path, category: str):
+        # check if there is a License File
         license_file = location / "LICENSE"
         if license_file.is_file():
-            # put a licence text macro in head
+            # put a license text macro in head
             license_text = license_file.read_text(encoding="utf-8")
-            direct_category = location.name
-            self.makro_file.add_to_header(f'@{direct_category}.license: Bildquellen: {license_text}')
-            # and put Licence text between Heading and Start of Table
+            self.makro_file.add_to_header(f'@{category}.license: Bildquellen: {license_text}')
+            # and put License text between Heading and Start of Table
             self.makro_file.add_to_body(f"\n{license_text}\n")
-            self.makro_file.add_to_body(f"mit `@{direct_category}.license` kann der Text ausgegeben werden.")
-            self.makro_file.add_to_body(f"\n> @{direct_category}.license")
+            self.makro_file.add_to_body(f"mit `@{category}.license` kann der Text ausgegeben werden.")
+            self.makro_file.add_to_body(f"\n> @{category}.license")
