@@ -1,6 +1,6 @@
 [project]
 name = "liascript-img-makro-gen"
-version = "0.1.0"
+version = "1.0.0"
 description = "A tool to generate image macros for Liascript."
 authors = [
     {name = "Volker Goehler",email = "volker.goehler@informatik.tu-freiberg.de"}
